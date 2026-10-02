@@ -1,0 +1,6 @@
+{
+  "name": "ResQ",
+  "description": "Mobile-first emergency assistance application for individuals and families with Hyper SOS, MediCard, and family alerts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
