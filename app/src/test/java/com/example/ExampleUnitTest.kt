@@ -72,7 +72,7 @@ class ExampleUnitTest {
     val session = ResQRepository.startSession(hyperPreset)
 
     assertNotNull(ResQRepository.activeSession.value)
-    assertEquals("SOS started", session.statusTitle)
+    assertEquals("Get ResQ started", session.statusTitle)
     assertEquals(4, session.steps.size)
     assertTrue(session.steps[0].done) // Started is done
 
@@ -88,7 +88,7 @@ class ExampleUnitTest {
     assertEquals(historyCountBefore + 1, ResQRepository.history.value.size)
     val latestHistory = ResQRepository.history.value.first()
     assertEquals("Resolved safely", latestHistory.status)
-    assertEquals("Hyper SOS", latestHistory.title)
+    assertEquals("Get ResQ", latestHistory.title)
   }
 
   @Test

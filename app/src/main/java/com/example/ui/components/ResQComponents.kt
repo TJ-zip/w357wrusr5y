@@ -409,7 +409,7 @@ fun ResQLaunchRail(
           offsetX = 0f
         }
       )
-      .semantics { contentDescription = "Swipe left for Hyper SOS" }
+      .semantics { contentDescription = "Swipe left to Get ResQ" }
       .testTag("hyper_sos_launch_rail"),
     contentAlignment = Alignment.Center
   ) {
@@ -441,7 +441,7 @@ fun ResQLaunchRail(
       Spacer(Modifier.height(8.dp))
 
       Text(
-        text = "Swipe left for Hyper SOS",
+        text = "Swipe left to Get ResQ",
         fontSize = 18.sp,
         fontWeight = FontWeight.Bold,
         color = ResQWhite

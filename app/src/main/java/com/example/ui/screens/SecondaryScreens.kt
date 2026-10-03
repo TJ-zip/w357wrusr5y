@@ -191,7 +191,7 @@ fun EmergencyContactsScreen(
 
     ResQRowItem(
       label = "Automatic alerts",
-      value = if (profile.receiveAlerts) "Enabled for Hyper SOS" else "Disabled",
+      value = if (profile.receiveAlerts) "Enabled for Get ResQ" else "Disabled",
       action = "Change",
       onClick = {
         onUpdateProfile(profile.copy(receiveAlerts = !profile.receiveAlerts))
@@ -435,7 +435,7 @@ fun PermissionsSettingsScreen(
 
     ResQRowItem(
       label = "Family alerts",
-      value = "On for Hyper SOS",
+      value = "On for Get ResQ",
       action = "Change"
     )
 

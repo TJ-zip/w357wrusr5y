@@ -194,14 +194,14 @@ fun ResQApp() {
                 },
                 onChangePatient = { showPersonPicker = true },
                 onLocationClick = { currentPage = PageDestination.LOCATION },
-                onReachMeClick = {
+                onReportBystanderClick = {
                   countdownPreset = SosPreset(
-                    id = "reach",
-                    title = "Reach Me",
-                    subtitle = "Call me and alert my circle",
-                    number = null,
-                    mode = SosMode.REACH,
-                    alerts = true
+                    id = "bystander",
+                    title = "Bystander SOS",
+                    subtitle = "Emergency aid for another person",
+                    number = "112",
+                    mode = SosMode.BYSTANDER,
+                    alerts = false
                   )
                 }
               )

@@ -33,8 +33,17 @@ data class PatientProfile(
 enum class SosMode {
   HYPER,
   REACH,
-  CALL
+  CALL,
+  BYSTANDER
 }
+
+data class BystanderData(
+  val ageGroup: String = "Unknown",
+  val consciousness: String = "Unknown",
+  val breathing: String = "Unknown",
+  val observations: String = "",
+  val landmark: String = ""
+)
 
 data class SosPreset(
   val id: String,
@@ -42,7 +51,8 @@ data class SosPreset(
   val subtitle: String,
   val number: String?,
   val mode: SosMode,
-  val alerts: Boolean
+  val alerts: Boolean,
+  val bystanderData: BystanderData? = null
 )
 
 data class SosStep(

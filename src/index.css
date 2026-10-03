@@ -6,10 +6,21 @@
   box-sizing: border-box;
 }
 
-html, body, #root {
+html, body {
   margin: 0;
+  padding: 0;
+  width: 100%;
   min-height: 100%;
+  background-color: #ffffff;
   overflow-x: hidden;
+}
+
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100dvh;
+  background-color: #ffffff;
 }
 
 body, button, input, textarea {
@@ -20,8 +31,28 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Force full width and remove all side gutters on mobile */
+@media (max-width: 600px) {
+  .app-shell {
+    width: 100vw !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+}
+
+/* On desktop previews only, allow a clean centered testing column */
+@media (min-width: 601px) {
+  .app-shell {
+    max-width: 440px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 0 30px rgba(10, 61, 46, 0.08);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
+    animation: none !important;
   }
 }

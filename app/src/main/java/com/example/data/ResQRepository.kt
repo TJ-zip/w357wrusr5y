@@ -19,7 +19,7 @@ object ResQRepository {
   val defaultPresets = listOf(
     SosPreset(
       id = "hyper",
-      title = "Hyper SOS",
+      title = "Get ResQ",
       subtitle = "Medical emergency",
       number = "112",
       mode = SosMode.HYPER,
@@ -199,9 +199,9 @@ object ResQRepository {
         id = sessionId,
         profile = currentProfile,
         preset = preset,
-        statusTitle = "SOS started",
+        statusTitle = "Get ResQ started",
         statusDetail = "Your location and MediCard are being prepared. Now call 112.",
-        familyStatus = "Connected family alerts initialized",
+        familyStatus = "Connected family Get ResQ alerts initialized",
         detail = "",
         steps = listOf(
           SosStep("Started", true),
@@ -223,6 +223,21 @@ object ResQRepository {
           SosStep("Location", isLocAvailable),
           SosStep("Contacts", true),
           SosStep("Callback", true)
+        )
+      )
+      SosMode.BYSTANDER -> SosSession(
+        id = sessionId,
+        profile = currentProfile.copy(name = "Unknown bystander", allergies = listOf("None attached")),
+        preset = preset,
+        statusTitle = "Bystander SOS active",
+        statusDetail = "Location & bystander report logged. Personal MediCard is NOT attached. Now call 112.",
+        familyStatus = "Bystander report active",
+        detail = preset.bystanderData?.observations ?: "",
+        steps = listOf(
+          SosStep("Started", true),
+          SosStep("Location", isLocAvailable),
+          SosStep("Observations", true),
+          SosStep("Dialer ready", true)
         )
       )
       SosMode.CALL -> SosSession(
