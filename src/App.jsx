@@ -5,8 +5,10 @@ import {
   ArrowLeft,
   ArrowRight,
   Baby,
+  Camera,
   Check,
   ChevronRight,
+  Circle,
   Clock3,
   Cross,
   FileHeart,
@@ -18,19 +20,25 @@ import {
   MapPin,
   Menu,
   MessageSquareWarning,
+  Navigation,
   Phone,
+  Play,
   Plus,
+  RefreshCw,
+  RotateCcw,
   Shield,
   ShieldCheck,
   Siren,
   Smartphone,
+  Square,
   TriangleAlert,
   UserRound,
   UsersRound,
+  Video,
   X,
 } from "lucide-react";
 
-// Color System (Strictly preserved)
+// Brand Color System (Strictly preserved)
 const C = {
   green: "#12855f",
   greenDark: "#0a3d2e",
@@ -43,7 +51,7 @@ const C = {
   white: "#ffffff",
 };
 
-// Seed Data
+// Seed Profiles
 const defaultProfiles = [
   {
     id: "self",
@@ -103,50 +111,55 @@ const defaultProfiles = [
   },
 ];
 
+// Rebuilt SOS Presets with strict vertical metadata
 const sosPresets = [
   {
     id: "hyper",
+    kicker: "MEDICAL EMERGENCY",
     title: "Get ResQ",
     subtitle: "Medical emergency",
-    description: "Start location, MediCard and family alerts.",
-    actionLabel: "Get ResQ",
-    swipeCue: "Swipe to choose another SOS",
+    description: "Start location, MediCard and connected-family alerts.",
+    actionLabel: "GET RESQ",
     mode: "hyper",
     number: "112",
     theme: "red",
+    icon: Siren,
   },
   {
     id: "reach",
+    kicker: "EMERGENCY ASSISTANCE",
     title: "Reach Me",
-    subtitle: "Alert my circle and share my location",
-    description: "Share live position with your trusted contacts.",
-    actionLabel: "Start Reach Me",
-    swipeCue: "Swipe to choose another SOS",
+    subtitle: "Emergency assistance to reach your location",
+    description: "Request emergency services to reach your location and alert your circle.",
+    actionLabel: "START REACH ME",
     mode: "reach",
     number: null,
     theme: "green",
+    icon: HeartPulse,
   },
   {
     id: "ambulance",
+    kicker: "AMBULANCE SERVICE",
     title: "Ambulance Helpline",
-    subtitle: "Call the configured ambulance number",
-    description: "Prepares phone dialer for ambulance service.",
-    actionLabel: "Call Ambulance Helpline",
-    swipeCue: "Swipe to choose another SOS",
+    subtitle: "Configured helpline",
+    description: "Prepare a call to the configured ambulance helpline.",
+    actionLabel: "CALL AMBULANCE HELPLINE",
     mode: "call",
     number: "102",
     theme: "whiteRedBorder",
+    icon: Cross,
   },
   {
     id: "family",
+    kicker: "FAMILY SUPPORT",
     title: "Family Emergency",
-    subtitle: "Alert family and call the saved contact",
-    description: "Notify family profiles and open primary contact.",
-    actionLabel: "Start Family Emergency",
-    swipeCue: "Swipe to choose another SOS",
+    subtitle: "Primary family contact",
+    description: "Alert family profiles and call your primary emergency contact.",
+    actionLabel: "START FAMILY EMERGENCY",
     mode: "call",
     number: "+919000000002",
     theme: "softGreen",
+    icon: UsersRound,
   },
 ];
 
@@ -182,6 +195,10 @@ function dateNow() {
   });
 }
 
+function uid() {
+  return `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+}
+
 // Logo Component: "Res" in deep green, only "Q" in red
 function Logo() {
   return (
@@ -199,47 +216,21 @@ function Logo() {
   );
 }
 
-// Button Component
-function TapButton({ children, tone = "green", onClick, disabled = false, className = "", ...props }) {
-  const toneClass =
-    tone === "red"
-      ? "border-[#c8322a] bg-[#c8322a] text-white active:bg-[#a82a23]"
-      : tone === "redOutline"
-      ? "border-2 border-[#c8322a] bg-white text-[#c8322a] active:bg-[#fff3f1]"
-      : tone === "plain"
-      ? "border border-[#c9dad2] bg-white text-[#0a3d2e] active:bg-[#e8f3ee]"
-      : "border border-[#12855f] bg-[#12855f] text-white active:bg-[#0a3d2e]";
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={cx(
-        "flex min-h-14 w-full items-center justify-center gap-2 rounded-[4px] px-5 text-[16px] font-bold transition disabled:opacity-40 select-none",
-        toneClass,
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-}
-
 // Ruled Row Component
 function Row({ label, value, action, onClick, urgent = false, icon: Icon, className = "" }) {
   return (
     <button
       onClick={onClick}
       className={cx(
-        "flex min-h-[76px] w-full items-center gap-3 border-b border-[#c9dad2] px-4 py-3 text-left transition active:bg-[#e8f3ee]/40",
+        "flex min-h-[72px] w-full items-center gap-3 border-b border-[#c9dad2] px-4 py-3 text-left transition active:bg-[#e8f3ee]/40",
         urgent && "border-l-4 border-l-[#c8322a]",
         className
       )}
     >
       {Icon && <Icon className={cx("h-5 w-5 shrink-0", urgent ? "text-[#c8322a]" : "text-[#12855f]")} />}
       <div className="min-w-0 flex-1">
-        <p className="text-[13px] font-semibold text-[#5a7368]">{label}</p>
-        <p className="mt-1 truncate text-[16px] font-bold text-[#0a3d2e]">{value}</p>
+        <p className="text-[12px] font-semibold text-[#5a7368]">{label}</p>
+        <p className="mt-0.5 truncate text-[16px] font-bold text-[#0a3d2e]">{value}</p>
       </div>
       {action && (
         <span className={cx("min-h-12 px-2 text-[14px] font-bold leading-[48px]", urgent ? "text-[#c8322a]" : "text-[#12855f]")}>
@@ -250,7 +241,7 @@ function Row({ label, value, action, onClick, urgent = false, icon: Icon, classN
   );
 }
 
-// Application Header
+// Header
 function AppHeader({ openMenu, location = "Finding location…", onLocationClick }) {
   return (
     <header className="flex h-16 shrink-0 items-center border-b border-[#c9dad2] bg-white px-3 select-none">
@@ -274,14 +265,12 @@ function AppHeader({ openMenu, location = "Finding location…", onLocationClick
   );
 }
 
-// Swipeable SOS Preset Selector Component
+// Rebuilt SOS Preset Carousel: Strict Vertical Hierarchy & Zero Collisions
 function SosPresetSelector({ presets, selectedIndex, setSelectedIndex, onActivate }) {
   const containerRef = useRef(null);
   const [dragX, setDragX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const dragStart = useRef({ x: 0, y: 0, isLocked: false, isVertical: false });
-
-  const activePreset = presets[selectedIndex] || presets[0];
 
   function handlePointerDown(e) {
     setIsDragging(true);
@@ -317,7 +306,6 @@ function SosPresetSelector({ presets, selectedIndex, setSelectedIndex, onActivat
 
     if (dragStart.current.isVertical) return;
 
-    // Resistance at bounds
     let adjustedDx = dx;
     if (selectedIndex === 0 && dx > 0) adjustedDx = dx * 0.3;
     if (selectedIndex === presets.length - 1 && dx < 0) adjustedDx = dx * 0.3;
@@ -332,7 +320,7 @@ function SosPresetSelector({ presets, selectedIndex, setSelectedIndex, onActivat
       e.currentTarget.releasePointerCapture?.(e.pointerId);
     } catch (_) {}
 
-    const threshold = 70;
+    const threshold = 65;
     if (dragX < -threshold && selectedIndex < presets.length - 1) {
       setSelectedIndex(selectedIndex + 1);
       try { navigator.vibrate?.(15); } catch (_) {}
@@ -345,7 +333,6 @@ function SosPresetSelector({ presets, selectedIndex, setSelectedIndex, onActivat
 
   return (
     <div className="w-full select-none">
-      {/* Outer Card Carousel Viewport */}
       <div
         ref={containerRef}
         onPointerDown={handlePointerDown}
@@ -366,58 +353,82 @@ function SosPresetSelector({ presets, selectedIndex, setSelectedIndex, onActivat
             const isReach = preset.id === "reach";
             const isAmbulance = preset.id === "ambulance";
             const isFamily = preset.id === "family";
+            const Icon = preset.icon;
 
             return (
               <div key={preset.id} className="min-w-full flex-shrink-0 p-0.5">
+                {/* Strict Vertical Structure */}
                 <div
                   className={cx(
-                    "flex min-h-[220px] flex-col justify-between rounded-[6px] p-5 text-left transition-colors",
+                    "sos-preset flex min-h-[250px] w-full flex-col justify-between rounded-[6px] p-5 text-left transition-colors",
                     isHyper && "bg-[#c8322a] text-white",
                     isReach && "bg-[#12855f] text-white",
                     isAmbulance && "border-2 border-[#c8322a] bg-white text-[#0a3d2e]",
                     isFamily && "border border-[#c9dad2] bg-[#e8f3ee] text-[#0a3d2e]"
                   )}
                 >
-                  {/* Top: Icon & Title */}
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        {isHyper && <Siren className="h-8 w-8 text-white" strokeWidth={2.2} />}
-                        {isReach && <HeartPulse className="h-8 w-8 text-white" strokeWidth={2.2} />}
-                        {isAmbulance && <Cross className="h-8 w-8 text-[#c8322a]" strokeWidth={2.2} />}
-                        {isFamily && <UsersRound className="h-8 w-8 text-[#12855f]" strokeWidth={2.2} />}
-
-                        <span
-                          className={cx(
-                            "text-[24px] font-extrabold tracking-[-0.03em]",
-                            (isHyper || isReach) && "text-white",
-                            isAmbulance && "text-[#c8322a]",
-                            isFamily && "text-[#0a3d2e]"
-                          )}
-                          style={{ fontFamily: "Montserrat, Arial, sans-serif" }}
-                        >
-                          {preset.title.toUpperCase()}
-                        </span>
-                      </div>
-                      <span className={cx("text-[12px] font-bold uppercase tracking-wider", (isHyper || isReach) ? "text-white/80" : "text-[#5a7368]")}>
-                        {preset.subtitle}
-                      </span>
+                  {/* Top Block: Icon, Kicker, Title, Description */}
+                  <div className="w-full min-w-0">
+                    {/* 1. Icon */}
+                    <div className="preset-icon mb-2.5">
+                      <Icon
+                        className={cx(
+                          "h-8 w-8",
+                          (isHyper || isReach) && "text-white",
+                          isAmbulance && "text-[#c8322a]",
+                          isFamily && "text-[#12855f]"
+                        )}
+                        strokeWidth={2.3}
+                      />
                     </div>
 
-                    <p className={cx("mt-2 text-[14px] leading-5 font-medium", (isHyper || isReach) ? "text-white/95" : "text-[#5a7368]")}>
+                    {/* 2. Preset Kicker (11px, Uppercase, Semibold, Letter spacing) */}
+                    <p
+                      className={cx(
+                        "preset-kicker text-[11px] font-semibold uppercase tracking-[0.14em]",
+                        (isHyper || isReach) ? "text-white/80" : isAmbulance ? "text-[#c8322a]" : "text-[#12855f]"
+                      )}
+                    >
+                      {preset.kicker}
+                    </p>
+
+                    {/* 3. Preset Title (Montserrat ExtraBold, 26px mobile / 30px wider, line-height ~1.1, natural wrap) */}
+                    <h2
+                      className={cx(
+                        "preset-title mt-1.5 break-words text-[26px] sm:text-[30px] font-extrabold tracking-[-0.035em] leading-[1.1]",
+                        (isHyper || isReach) && "text-white",
+                        isAmbulance && "text-[#c8322a]",
+                        isFamily && "text-[#0a3d2e]"
+                      )}
+                      style={{
+                        fontFamily: "Montserrat, Arial, sans-serif",
+                        overflowWrap: "anywhere",
+                      }}
+                    >
+                      {preset.title}
+                    </h2>
+
+                    {/* 4. One-line descriptor / Short explanation (15px, max 2 lines) */}
+                    <p
+                      className={cx(
+                        "preset-description mt-2.5 text-[15px] leading-5 font-medium line-clamp-2",
+                        (isHyper || isReach) ? "text-white/95" : "text-[#5a7368]"
+                      )}
+                    >
                       {preset.description}
                     </p>
                   </div>
 
-                  {/* Middle / Bottom: Primary Preset Action Button */}
-                  <div className="mt-4">
+                  {/* Bottom Block: Primary CTA & Swipe Instruction (At least 12px vertical spacing) */}
+                  <div className="mt-4 w-full min-w-0 pt-2">
+                    {/* 5. Primary Action Button (min 56px high, full width, max 1 line, 15px-16px) */}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         onActivate(preset);
                       }}
                       className={cx(
-                        "flex min-h-12 w-full items-center justify-center gap-2 rounded-[4px] px-4 text-[16px] font-extrabold uppercase tracking-wide transition active:scale-[0.99]",
+                        "preset-cta flex min-h-[56px] w-full items-center justify-center rounded-[4px] px-4 text-[15px] sm:text-[16px] font-extrabold uppercase tracking-wide transition active:scale-[0.99]",
                         isHyper && "bg-white text-[#c8322a] active:bg-[#fff3f1]",
                         isReach && "bg-white text-[#12855f] active:bg-[#e8f3ee]",
                         isAmbulance && "bg-[#c8322a] text-white active:bg-[#a82a23]",
@@ -427,10 +438,15 @@ function SosPresetSelector({ presets, selectedIndex, setSelectedIndex, onActivat
                       {preset.actionLabel}
                     </button>
 
-                    {/* Swipe Cue */}
-                    <div className="mt-2.5 flex items-center justify-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-center opacity-85">
+                    {/* 6. Swipe Instruction */}
+                    <div
+                      className={cx(
+                        "preset-swipe-cue mt-2.5 flex items-center justify-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-center",
+                        (isHyper || isReach) ? "text-white/80" : "text-[#5a7368]"
+                      )}
+                    >
                       <ArrowLeft className="h-3 w-3" />
-                      <span>{preset.swipeCue}</span>
+                      <span>Swipe to choose another SOS</span>
                       <ArrowRight className="h-3 w-3" />
                     </div>
                   </div>
@@ -441,8 +457,8 @@ function SosPresetSelector({ presets, selectedIndex, setSelectedIndex, onActivat
         </div>
       </div>
 
-      {/* Position Indicators: 4 Short Rectangular Marks (No rounded pills) */}
-      <div className="mt-2.5 flex items-center justify-center gap-2" aria-label="Preset indicators">
+      {/* 7. Preset Position Indicators (4 short rectangular marks, no rounded pills) */}
+      <div className="mt-3 flex items-center justify-center gap-2" aria-label="Preset indicators">
         {presets.map((preset, idx) => {
           const isSelected = idx === selectedIndex;
           return (
@@ -476,7 +492,7 @@ function EmergencyServicesGrid({ services, onSelectService }) {
   return (
     <div className="w-full pt-1">
       <div className="flex items-center justify-between pb-2">
-        <h2 className="text-[13px] font-extrabold uppercase tracking-[0.14em] text-[#5a7368]">
+        <h2 className="text-[12px] font-extrabold uppercase tracking-[0.14em] text-[#5a7368]">
           Contact Emergency Services
         </h2>
         <span className="text-[11px] font-semibold text-[#5a7368]">112 India Protocol</span>
@@ -490,9 +506,7 @@ function EmergencyServicesGrid({ services, onSelectService }) {
             <button
               key={svc.id}
               onClick={() => onSelectService(svc)}
-              className={cx(
-                "flex min-h-[74px] flex-col items-center justify-center rounded-[4px] border border-[#c9dad2] bg-white p-2 text-center transition active:bg-[#e8f3ee]"
-              )}
+              className="flex min-h-[74px] flex-col items-center justify-center rounded-[4px] border border-[#c9dad2] bg-white p-2 text-center transition active:bg-[#e8f3ee]"
               aria-label={svc.label}
             >
               <Icon
@@ -513,7 +527,7 @@ function EmergencyServicesGrid({ services, onSelectService }) {
   );
 }
 
-// Home Page Component
+// Home Page: Sole permanent Call 112 CTA
 function HomePage({
   profile,
   location,
@@ -529,7 +543,7 @@ function HomePage({
       {/* 1. Location Strip */}
       <button
         onClick={() => setPage("location")}
-        className="flex min-h-[58px] w-full items-center gap-3 border-b border-[#c9dad2] text-left active:bg-[#e8f3ee]/50"
+        className="flex min-h-[56px] w-full items-center gap-3 border-b border-[#c9dad2] text-left active:bg-[#e8f3ee]/50"
       >
         <MapPin className="h-5 w-5 shrink-0 text-[#12855f]" />
         <div className="min-w-0 flex-1">
@@ -551,13 +565,13 @@ function HomePage({
         />
       </div>
 
-      {/* 3. Call 112 Primary Action */}
+      {/* 3. The ONLY dedicated permanent Call 112 CTA in the application */}
       <div className="mt-4">
         <a
           href="tel:112"
-          className="flex min-h-[66px] w-full items-center justify-center gap-3 rounded-[6px] border-2 border-[#c8322a] bg-white text-[21px] font-extrabold text-[#c8322a] transition active:bg-[#fff3f1]"
+          className="flex min-h-[68px] w-full items-center justify-center gap-3 rounded-[6px] border-2 border-[#c8322a] bg-white text-[22px] font-extrabold text-[#c8322a] transition active:bg-[#fff3f1]"
         >
-          <Phone className="h-6 w-6" /> Call 112
+          <Phone className="h-6 w-6 text-[#c8322a]" /> Call 112
         </a>
       </div>
 
@@ -573,7 +587,7 @@ function HomePage({
       <div className="mt-5 border-t border-[#c9dad2]">
         <button
           onClick={() => setPage("personPicker")}
-          className="flex min-h-[76px] w-full items-center gap-3 text-left active:bg-[#e8f3ee]/40"
+          className="flex min-h-[74px] w-full items-center gap-3 text-left active:bg-[#e8f3ee]/40"
         >
           <div className="grid h-11 w-11 place-items-center bg-[#e8f3ee] font-extrabold text-[#12855f] rounded-[4px]">
             {profile.initials}
@@ -608,16 +622,16 @@ function Countdown({ preset, cancel, complete }) {
 
   const desc = useMemo(() => {
     if (preset.mode === "hyper") {
-      return "Location, MediCard and connected family alerts will initialize.";
+      return "Location, MediCard and connected-family alerts will initialize.";
     }
     if (preset.mode === "reach") {
-      return "Your trusted contacts will be alerted and ResQ will call you.";
+      return "Location sharing and trusted-contact alerts will initialize.";
     }
     if (preset.mode === "bystander") {
       return "Location and bystander observations will be prepared. Account MediCard is NOT attached.";
     }
     if (preset.number) {
-      return `ResQ will open the phone calling interface for ${preset.number}.`;
+      return `ResQ will prepare the phone dialer for ${preset.number}.`;
     }
     return "Emergency action initializing.";
   }, [preset]);
@@ -634,7 +648,7 @@ function Countdown({ preset, cancel, complete }) {
 
         <div className="flex flex-1 flex-col items-center justify-center text-center">
           <p className="text-[13px] font-extrabold uppercase tracking-[0.16em] text-[#c8322a]">
-            {preset.title}
+            {preset.title.toUpperCase()}
           </p>
           <div
             className="mt-6 text-[110px] font-extrabold leading-none text-[#c8322a] select-none"
@@ -653,18 +667,27 @@ function Countdown({ preset, cancel, complete }) {
           </p>
         </div>
 
-        <TapButton tone="redOutline" onClick={cancel}>
+        <button
+          onClick={cancel}
+          className="flex min-h-14 w-full items-center justify-center gap-2 rounded-[4px] border-2 border-[#c8322a] bg-white text-[16px] font-bold text-[#c8322a] active:bg-[#fff3f1]"
+        >
           <X className="h-5 w-5" /> Cancel
-        </TapButton>
+        </button>
       </div>
     </div>
   );
 }
 
-// Active SOS Command Screen (Preset-specific truthfully rendered)
-function ActiveSOS({ session, location, cancel, openPicker, addDetail, escalateToHyper }) {
+// 3. GET RESQ RESULT SCREEN (No Call 112, Truthful status, Callback requested)
+function GetResqResultScreen({
+  session,
+  location,
+  cancel,
+  openPicker,
+  onOpenAddDetail,
+  onOpenLocation,
+}) {
   const [elapsed, setElapsed] = useState(0);
-  const [scriptOpen, setScriptOpen] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setElapsed((s) => s + 1), 1000);
@@ -674,10 +697,13 @@ function ActiveSOS({ session, location, cancel, openPicker, addDetail, escalateT
   const mm = String(Math.floor(elapsed / 60)).padStart(2, "0");
   const ss = String(elapsed % 60).padStart(2, "0");
 
-  const isHyper = session.preset.mode === "hyper";
-  const isReach = session.preset.mode === "reach";
-  const isBystander = session.preset.mode === "bystander";
-  const isCall = session.preset.mode === "call";
+  const progressItems = [
+    { label: "SOS session created", done: true, detail: `Session ID: ${session.id}` },
+    { label: "Location found", done: true, detail: location },
+    { label: "MediCard prepared", done: true, detail: `Blood: ${session.profile.bloodGroup} · Allergy: ${session.profile.allergies[0] || "None"}` },
+    { label: `Alert sent to ${session.profile.contact.split("·")[0].trim()}`, done: true, detail: "SMS & push dispatch logged" },
+    { label: "ResQ callback requested", done: false, detail: "In queue for automatic coordinator callback" },
+  ];
 
   return (
     <div className="flex h-[100dvh] w-full flex-col overflow-hidden bg-white">
@@ -688,214 +714,885 @@ function ActiveSOS({ session, location, cancel, openPicker, addDetail, escalateT
           onClick={cancel}
           className="min-h-12 px-2 text-[14px] font-bold text-[#c8322a] active:opacity-75"
         >
-          Cancel SOS
+          Cancel Get ResQ
+        </button>
+      </header>
+
+      {/* Main Status Headline Block */}
+      <section className="shrink-0 border-l-4 border-l-[#c8322a] bg-[#e8f3ee] px-4 py-4" aria-live="assertive">
+        <div className="flex items-center justify-between">
+          <p className="text-[12px] font-bold uppercase tracking-wider text-[#5a7368]">
+            Get ResQ Active · {mm}:{ss}
+          </p>
+        </div>
+        <h1
+          className="mt-1 text-[24px] font-extrabold tracking-[-0.03em] text-[#0a3d2e]"
+          style={{ fontFamily: "Montserrat, Arial, sans-serif" }}
+        >
+          GET RESQ STARTED
+        </h1>
+        <p className="mt-1 text-[18px] font-bold text-[#c8322a]">
+          You’ll receive a call soon.
+        </p>
+        <p className="mt-1 text-[14px] leading-5 text-[#5a7368]">
+          Your location, MediCard and connected-family alerts are being prepared.
+        </p>
+      </section>
+
+      {/* Truthful Progress List */}
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#12855f] mb-2.5">
+          Emergency Status
+        </p>
+
+        <div className="space-y-3">
+          {progressItems.map((item, idx) => (
+            <div key={idx} className="flex items-start gap-3 rounded-[4px] border border-[#c9dad2] bg-white p-3">
+              <div
+                className={cx(
+                  "grid h-6 w-6 shrink-0 place-items-center rounded-full mt-0.5",
+                  item.done ? "bg-[#12855f] text-white" : "border border-[#c9dad2] bg-[#e8f3ee] text-[#5a7368]"
+                )}
+              >
+                {item.done ? <Check className="h-3.5 w-3.5" /> : <Clock3 className="h-3.5 w-3.5" />}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[14px] font-bold text-[#0a3d2e]">{item.label}</p>
+                <p className="text-[12px] text-[#5a7368]">{item.detail}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Additional Detail Row */}
+        <div className="mt-4 border-t border-[#c9dad2] pt-3">
+          <Row
+            label="Incident Details"
+            value={session.detail || "No additional details added"}
+            action="Add / Edit"
+            onClick={onOpenAddDetail}
+            icon={AlertCircle}
+          />
+        </div>
+      </div>
+
+      {/* Primary Actions: NO Call 112 CTA */}
+      <div className="shrink-0 border-t border-[#c9dad2] bg-white p-4 space-y-2.5 pb-[max(16px,env(safe-area-inset-bottom))]">
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={onOpenLocation}
+            className="flex min-h-12 items-center justify-center gap-1.5 rounded-[4px] border border-[#c9dad2] bg-white text-[14px] font-bold text-[#0a3d2e] active:bg-[#e8f3ee]"
+          >
+            <MapPin className="h-4 w-4 text-[#12855f]" /> Update location
+          </button>
+          <button
+            onClick={openPicker}
+            className="flex min-h-12 items-center justify-center gap-1.5 rounded-[4px] border border-[#c9dad2] bg-white text-[14px] font-bold text-[#0a3d2e] active:bg-[#e8f3ee]"
+          >
+            <UserRound className="h-4 w-4 text-[#12855f]" /> Change patient
+          </button>
+        </div>
+
+        <button
+          onClick={onOpenAddDetail}
+          className="flex min-h-12 w-full items-center justify-center gap-2 rounded-[4px] bg-[#12855f] text-[15px] font-bold text-white active:bg-[#0a3d2e]"
+        >
+          <Plus className="h-4 w-4" /> Add emergency details
+        </button>
+
+        <button
+          onClick={cancel}
+          className="flex min-h-11 w-full items-center justify-center rounded-[4px] text-[13px] font-bold text-[#c8322a] active:opacity-75"
+        >
+          Cancel Get ResQ
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// 6 & 9. REACH ME TRACKING INTERFACE (Uber-like operational layout, Video Stamp, Truthful status)
+function ReachMeTrackingScreen({
+  session,
+  location,
+  cancel,
+  onOpenTextComposer,
+  onOpenVideoStamp,
+  onOpenLocation,
+  isSimulatedAccepted,
+  onToggleSimulation,
+}) {
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => setElapsed((s) => s + 1), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const mm = String(Math.floor(elapsed / 60)).padStart(2, "0");
+  const ss = String(elapsed % 60).padStart(2, "0");
+
+  return (
+    <div className="flex h-[100dvh] w-full flex-col overflow-hidden bg-white">
+      {/* A. Status Header */}
+      <header className="flex h-16 shrink-0 items-center justify-between border-b border-[#c9dad2] px-4">
+        <Logo />
+        <button
+          onClick={cancel}
+          className="min-h-12 px-2 text-[14px] font-bold text-[#c8322a] active:opacity-75"
+        >
+          Cancel
         </button>
       </header>
 
       {/* Incident Status Banner */}
-      <section
-        className={cx(
-          "shrink-0 border-l-4 px-4 py-3.5",
-          isReach ? "border-l-[#12855f] bg-[#e8f3ee]" : "border-l-[#c8322a] bg-[#e8f3ee]"
+      <section className="shrink-0 border-l-4 border-l-[#12855f] bg-[#e8f3ee] px-4 py-3.5" aria-live="assertive">
+        <div className="flex items-center justify-between">
+          <p className="text-[12px] font-bold uppercase tracking-wider text-[#12855f]">
+            REACH ME ACTIVE · {mm}:{ss}
+          </p>
+          <button
+            onClick={onToggleSimulation}
+            className="text-[10px] font-bold px-2 py-0.5 rounded bg-white text-[#5a7368] border border-[#c9dad2]"
+            title="Toggle developer provider accepted preview"
+          >
+            {isSimulatedAccepted ? "Dev: Revert to Waiting" : "Dev: Simulate Acceptance"}
+          </button>
+        </div>
+
+        {isSimulatedAccepted ? (
+          <>
+            <h1
+              className="mt-1 text-[22px] font-extrabold tracking-[-0.03em] text-[#0a3d2e]"
+              style={{ fontFamily: "Montserrat, Arial, sans-serif" }}
+            >
+              Emergency services are reaching you
+            </h1>
+            <p className="mt-0.5 text-[14px] font-medium text-[#12855f]">
+              Stay at the shared location if it is safe to do so.
+            </p>
+          </>
+        ) : (
+          <>
+            <h1
+              className="mt-1 text-[22px] font-extrabold tracking-[-0.03em] text-[#0a3d2e]"
+              style={{ fontFamily: "Montserrat, Arial, sans-serif" }}
+            >
+              Connecting you with emergency services
+            </h1>
+            <p className="mt-0.5 text-[14px] text-[#5a7368]">
+              Your location and emergency details are being prepared.
+            </p>
+          </>
         )}
-        aria-live="assertive"
+      </section>
+
+      {/* B. Operational Location Surface */}
+      <div className="shrink-0 border-b border-[#c9dad2] bg-[#f8fbf9] p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#12855f] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-[#12855f]"></span>
+            </div>
+            <span className="text-[12px] font-bold uppercase tracking-wider text-[#0a3d2e]">
+              Shared Emergency Location
+            </span>
+          </div>
+          <span className="text-[11px] font-semibold text-[#5a7368]">GPS Accuracy ±6m</span>
+        </div>
+
+        <div className="mt-2.5 flex items-center justify-between rounded-[4px] border border-[#c9dad2] bg-white p-3">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[15px] font-bold text-[#0a3d2e]">{location}</p>
+            <p className="text-[11px] text-[#5a7368]">Live coordinates broadcast to responders</p>
+          </div>
+          <button
+            onClick={onOpenLocation}
+            className="ml-3 grid h-9 w-9 shrink-0 place-items-center rounded bg-[#e8f3ee] text-[#12855f] active:bg-[#c9dad2]"
+            aria-label="Recenter location"
+          >
+            <RefreshCw className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* Scrollable Content: Status Sheet, Updates, Connected Profiles */}
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3 space-y-4">
+        {/* C. Service Status Sheet */}
+        {isSimulatedAccepted ? (
+          <div className="rounded-[4px] border-2 border-[#12855f] bg-[#e8f3ee] p-3.5 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#12855f]">
+                Dispatched Responder
+              </span>
+              <span className="text-[11px] font-bold text-[#0a3d2e]">Vehicle: KA-01-EQ-4122</span>
+            </div>
+            <p className="text-[17px] font-extrabold text-[#0a3d2e]">City Care Quick Response</p>
+            <p className="text-[13px] text-[#5a7368]">Basic Life Support Ambulance</p>
+            <div className="border-t border-[#c9dad2] pt-2">
+              <p className="text-[15px] font-bold text-[#12855f]">Provider’s estimate: 12 minutes</p>
+              <p className="text-[11px] text-[#5a7368]">Updated at 7:12 AM. This estimate may change.</p>
+            </div>
+            <a
+              href="tel:+918044551199"
+              className="mt-2 flex min-h-11 w-full items-center justify-center gap-2 rounded bg-[#12855f] text-[14px] font-bold text-white"
+            >
+              <Phone className="h-4 w-4" /> Call provider (+91 80 4455 1199)
+            </a>
+          </div>
+        ) : (
+          <div>
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#12855f] mb-2">
+              STATUS
+            </p>
+            <div className="space-y-2">
+              {[
+                { label: "Request created", status: "Reach Me session active", done: true },
+                { label: "Location found", status: location, done: true },
+                { label: "MediCard ready", status: `${session.profile.name} (B+)`, done: true },
+                { label: "Waiting for service confirmation", status: "Submitting to local emergency dispatch", done: false },
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between border-b border-[#e8f3ee] py-1.5 text-[14px]">
+                  <span className="font-bold text-[#0a3d2e]">{item.label}</span>
+                  <span className={cx("text-[12px]", item.done ? "text-[#12855f] font-semibold" : "text-[#5a7368]")}>
+                    {item.done ? "Done" : "Pending"}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* D. Updates Section */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#12855f]">
+              UPDATES
+            </p>
+            <span className="text-[11px] text-[#5a7368]">
+              {session.updates?.length || 0} attached
+            </span>
+          </div>
+
+          {!session.updates || session.updates.length === 0 ? (
+            <p className="text-[13px] text-[#5a7368] italic py-2">
+              No additional details yet. Add text observations or attach a Video Stamp.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {session.updates.map((upd) => (
+                <div key={upd.id} className="rounded border border-[#c9dad2] bg-[#f8fbf9] p-3 text-[13px]">
+                  <div className="flex items-center justify-between text-[#5a7368]">
+                    <span className="font-bold text-[#12855f]">{upd.source || "You reported"}</span>
+                    <span>{upd.timestamp}</span>
+                  </div>
+                  {upd.type === "video" ? (
+                    <div className="mt-1 flex items-center gap-2 font-bold text-[#0a3d2e]">
+                      <Video className="h-4 w-4 text-[#12855f]" />
+                      <span>Video Stamp attached ({upd.duration})</span>
+                      <span className="ml-auto text-[11px] font-normal text-[#5a7368]">{upd.storageStatus}</span>
+                    </div>
+                  ) : (
+                    <p className="mt-1 text-[#0a3d2e] font-medium leading-relaxed">{upd.text}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Quick Add Update Buttons */}
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <button
+              onClick={onOpenTextComposer}
+              className="flex min-h-12 items-center justify-center gap-1.5 rounded-[4px] border border-[#12855f] bg-white text-[14px] font-bold text-[#12855f] active:bg-[#e8f3ee]"
+            >
+              <Plus className="h-4 w-4" /> Add text update
+            </button>
+            <button
+              onClick={onOpenVideoStamp}
+              className="flex min-h-12 items-center justify-center gap-1.5 rounded-[4px] bg-[#12855f] text-[14px] font-bold text-white active:bg-[#0a3d2e]"
+            >
+              <Camera className="h-4 w-4" /> Start Video Stamp
+            </button>
+          </div>
+        </div>
+
+        {/* E. Connected Profiles */}
+        <div className="border-t border-[#c9dad2] pt-3">
+          <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#12855f] mb-1">
+            CONNECTED PROFILES
+          </p>
+          <div className="flex items-center justify-between py-1">
+            <div className="flex items-center gap-2">
+              <UsersRound className="h-4 w-4 text-[#12855f]" />
+              <span className="text-[14px] font-bold text-[#0a3d2e]">2 contacts alerted</span>
+            </div>
+            <span className="text-[12px] font-semibold text-[#12855f]">Location sharing active</span>
+          </div>
+          <p className="text-[12px] text-[#5a7368]">{session.profile.contact}</p>
+        </div>
+      </div>
+
+      {/* Bottom Action Footer (NO Call 112 CTA) */}
+      <div className="shrink-0 border-t border-[#c9dad2] bg-white p-3.5 space-y-2 pb-[max(14px,env(safe-area-inset-bottom))]">
+        <button
+          onClick={onOpenLocation}
+          className="flex min-h-11 w-full items-center justify-center gap-2 rounded border border-[#c9dad2] text-[14px] font-bold text-[#0a3d2e] active:bg-[#e8f3ee]"
+        >
+          <MapPin className="h-4 w-4 text-[#12855f]" /> Update location
+        </button>
+        <button
+          onClick={cancel}
+          className="flex min-h-10 w-full items-center justify-center text-[13px] font-bold text-[#c8322a] active:opacity-75"
+        >
+          Cancel Reach Me
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// 7. TEXT UPDATE COMPOSER
+function TextUpdateComposer({ onClose, onSave }) {
+  const [text, setText] = useState("");
+
+  const quickChips = [
+    "Patient is conscious",
+    "Patient is not responding",
+    "Breathing difficulty",
+    "Heavy bleeding",
+    "Accident or fall",
+    "Location is difficult to access",
+    "Unknown",
+  ];
+
+  function appendChip(chip) {
+    setText((prev) => (prev ? `${prev}. ${chip}` : chip));
+  }
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-end bg-[#0a3d2e]/35" onClick={onClose}>
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="max-h-[85dvh] w-full overflow-y-auto rounded-t-[8px] bg-white p-4 pb-[max(20px,env(safe-area-inset-bottom))]"
       >
-        <p className="text-[12px] font-bold text-[#5a7368]">
-          SOS active · {mm}:{ss}
-        </p>
+        <div className="flex items-center justify-between border-b border-[#c9dad2] pb-3">
+          <h3
+            className="text-[18px] font-extrabold text-[#0a3d2e]"
+            style={{ fontFamily: "Montserrat, Arial, sans-serif" }}
+          >
+            Describe what is happening
+          </h3>
+          <button onClick={onClose} className="grid h-10 w-10 place-items-center text-[#12855f]">
+            <X className="h-6 w-6" />
+          </button>
+        </div>
+
+        <p className="mt-2 text-[12px] text-[#5a7368]">Quick entries (tap to add):</p>
+        <div className="mt-1.5 flex flex-wrap gap-1.5">
+          {quickChips.map((chip) => (
+            <button
+              key={chip}
+              onClick={() => appendChip(chip)}
+              className="rounded-[4px] border border-[#c9dad2] bg-white px-2.5 py-1 text-[12px] font-semibold text-[#0a3d2e] active:bg-[#e8f3ee]"
+            >
+              + {chip}
+            </button>
+          ))}
+        </div>
+
+        <textarea
+          rows={3}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Add details emergency services should know."
+          className="mt-3 w-full rounded border border-[#c9dad2] p-3 text-[14px] text-[#0a3d2e] placeholder:text-[#5a7368]/60 focus:border-[#12855f] focus:outline-none"
+        />
+
+        <div className="mt-3 flex gap-2">
+          <button
+            onClick={onClose}
+            className="flex-1 min-h-12 rounded border border-[#c9dad2] text-[14px] font-bold text-[#0a3d2e]"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              if (text.trim()) {
+                onSave(text.trim());
+                onClose();
+              }
+            }}
+            disabled={!text.trim()}
+            className="flex-1 min-h-12 rounded bg-[#12855f] text-[14px] font-bold text-white disabled:opacity-40"
+          >
+            Save update
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// 8. VIDEO STAMP MODAL (MediaDevices.getUserMedia, camera tracks strictly stopped on close)
+function VideoStampModal({ sessionId, location, onClose, onAttach }) {
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const chunksRef = useRef([]);
+
+  const [step, setStep] = useState("init"); // init, recording, review, denied, unsupported
+  const [recordSec, setRecordSec] = useState(0);
+  const [videoBlobUrl, setVideoBlobUrl] = useState(null);
+
+  // Stop camera tracks cleanly
+  function stopCameraTracks() {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+  }
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stopCameraTracks();
+      if (videoBlobUrl) {
+        URL.revokeObjectURL(videoBlobUrl);
+      }
+    };
+  }, [videoBlobUrl]);
+
+  // Request camera and microphone
+  async function initCamera() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setStep("unsupported");
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+        audio: true,
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+      setStep("ready");
+    } catch (err) {
+      setStep("denied");
+    }
+  }
+
+  useEffect(() => {
+    initCamera();
+  }, []);
+
+  // Timer while recording
+  useEffect(() => {
+    let timer;
+    if (step === "recording") {
+      timer = setInterval(() => {
+        setRecordSec((s) => {
+          if (s >= 30) {
+            stopRecording();
+            return 30;
+          }
+          return s + 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [step]);
+
+  function startRecording() {
+    if (!streamRef.current) return;
+    chunksRef.current = [];
+    setRecordSec(0);
+
+    try {
+      const recorder = new MediaRecorder(streamRef.current);
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          chunksRef.current.push(e.data);
+        }
+      };
+      recorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: "video/webm" });
+        const url = URL.createObjectURL(blob);
+        setVideoBlobUrl(url);
+        setStep("review");
+      };
+      recorder.start();
+      mediaRecorderRef.current = recorder;
+      setStep("recording");
+    } catch (_) {
+      setStep("denied");
+    }
+  }
+
+  function stopRecording() {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+      mediaRecorderRef.current.stop();
+    }
+  }
+
+  function handleRetake() {
+    if (videoBlobUrl) {
+      URL.revokeObjectURL(videoBlobUrl);
+      setVideoBlobUrl(null);
+    }
+    setRecordSec(0);
+    initCamera();
+  }
+
+  function handleAttach() {
+    stopCameraTracks();
+    onAttach({
+      duration: `${recordSec}s`,
+      timestamp: timeNow(),
+      locationStatus: "Location attached",
+      storageStatus: "Stored on this device",
+    });
+    onClose();
+  }
+
+  function handleClose() {
+    stopCameraTracks();
+    onClose();
+  }
+
+  return (
+    <div className="fixed inset-0 z-[100] flex flex-col bg-black text-white">
+      {/* Header */}
+      <div className="flex h-14 items-center justify-between px-4 bg-black/80">
+        <div>
+          <span className="text-[14px] font-bold">Video Stamp</span>
+          <span className="ml-2 text-[11px] text-white/70">ID: {sessionId}</span>
+        </div>
+        <button onClick={handleClose} className="p-2 text-white">
+          <X className="h-6 w-6" />
+        </button>
+      </div>
+
+      {/* Viewport Area */}
+      <div className="relative flex-1 bg-black flex items-center justify-center overflow-hidden">
+        {step === "denied" ? (
+          <div className="p-6 text-center">
+            <Camera className="mx-auto h-12 w-12 text-[#c8322a]" />
+            <h3 className="mt-3 text-[18px] font-bold">Camera Access Denied</h3>
+            <p className="mt-2 text-[14px] text-white/70 max-w-xs">
+              Camera and microphone permissions are required to capture a Video Stamp.
+            </p>
+            <button
+              onClick={handleClose}
+              className="mt-5 rounded bg-white px-5 py-2.5 text-[14px] font-bold text-[#0a3d2e]"
+            >
+              Close
+            </button>
+          </div>
+        ) : step === "unsupported" ? (
+          <div className="p-6 text-center">
+            <Video className="mx-auto h-12 w-12 text-[#c8322a]" />
+            <h3 className="mt-3 text-[18px] font-bold">Video Not Supported</h3>
+            <p className="mt-2 text-[14px] text-white/70">
+              Your browser does not support in-app video capture.
+            </p>
+            <button
+              onClick={handleClose}
+              className="mt-5 rounded bg-white px-5 py-2.5 text-[14px] font-bold text-[#0a3d2e]"
+            >
+              Close
+            </button>
+          </div>
+        ) : step === "review" && videoBlobUrl ? (
+          <video
+            src={videoBlobUrl}
+            controls
+            autoPlay
+            playsInline
+            className="h-full w-full object-contain"
+          />
+        ) : (
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className="h-full w-full object-cover"
+          />
+        )}
+
+        {/* Live Stamped HUD */}
+        {(step === "ready" || step === "recording") && (
+          <div className="absolute top-3 left-3 right-3 rounded bg-black/60 p-2 text-[12px] space-y-0.5 pointer-events-none">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-[#12855f]">STAMP: {timeNow()}</span>
+              {step === "recording" && (
+                <div className="flex items-center gap-1.5 text-[#c8322a] font-bold">
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#c8322a] animate-pulse"></span>
+                  <span>REC 00:{String(recordSec).padStart(2, "0")} / 00:30</span>
+                </div>
+              )}
+            </div>
+            <p className="truncate text-white/80">Loc: {location}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Control Bar */}
+      <div className="h-28 bg-black/90 px-5 flex items-center justify-around pb-[max(12px,env(safe-area-inset-bottom))]">
+        {step === "ready" && (
+          <button
+            onClick={startRecording}
+            className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-white bg-[#c8322a] text-white active:scale-95"
+            aria-label="Start recording"
+          >
+            <Circle className="h-7 w-7 fill-white" />
+          </button>
+        )}
+
+        {step === "recording" && (
+          <button
+            onClick={stopRecording}
+            className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-white bg-[#c8322a] text-white active:scale-95"
+            aria-label="Stop recording"
+          >
+            <Square className="h-6 w-6 fill-white" />
+          </button>
+        )}
+
+        {step === "review" && (
+          <div className="flex w-full items-center justify-between gap-3">
+            <button
+              onClick={handleRetake}
+              className="flex min-h-12 flex-1 items-center justify-center gap-1.5 rounded border border-white text-[14px] font-bold text-white active:bg-white/10"
+            >
+              <RotateCcw className="h-4 w-4" /> Retake
+            </button>
+            <button
+              onClick={handleAttach}
+              className="flex min-h-12 flex-1 items-center justify-center gap-1.5 rounded bg-[#12855f] text-[14px] font-bold text-white active:bg-[#0a3d2e]"
+            >
+              <Check className="h-4 w-4" /> Attach to Incident
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Service Calling Session Screen (Police, Fire, Helpline - NO duplicated Call 112)
+function ServiceCallSessionScreen({ session, location, cancel }) {
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => setElapsed((s) => s + 1), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const mm = String(Math.floor(elapsed / 60)).padStart(2, "0");
+  const ss = String(elapsed % 60).padStart(2, "0");
+
+  return (
+    <div className="flex h-[100dvh] w-full flex-col overflow-hidden bg-white">
+      <header className="flex h-16 shrink-0 items-center justify-between border-b border-[#c9dad2] px-4">
+        <Logo />
+        <button onClick={cancel} className="min-h-12 px-2 text-[14px] font-bold text-[#c8322a]">
+          Cancel
+        </button>
+      </header>
+
+      <section className="shrink-0 border-l-4 border-l-[#c8322a] bg-[#e8f3ee] px-4 py-4" aria-live="assertive">
+        <p className="text-[12px] font-bold text-[#5a7368]">Calling interface active · {mm}:{ss}</p>
         <h1
           className="mt-1 text-[22px] font-extrabold tracking-[-0.03em] text-[#0a3d2e]"
           style={{ fontFamily: "Montserrat, Arial, sans-serif" }}
         >
           {session.statusTitle}
         </h1>
-        <p className="mt-1 text-[15px] leading-5 text-[#5a7368]">
-          {session.statusDetail}
-        </p>
+        <p className="mt-1 text-[15px] leading-5 text-[#5a7368]">{session.statusDetail}</p>
       </section>
 
-      {/* Progress Steps */}
-      <div className="shrink-0 border-b border-[#c9dad2] px-4 py-2.5">
-        <p className="text-[11px] font-extrabold uppercase tracking-[0.11em] text-[#12855f]">
-          What ResQ has done
-        </p>
-        <div className="mt-2.5 grid grid-cols-4 gap-1">
-          {session.steps.map((step) => (
-            <div key={step.label} className="text-center">
-              <div
-                className={cx(
-                  "mx-auto grid h-7 w-7 place-items-center rounded-[3px] border",
-                  step.done
-                    ? "border-[#12855f] bg-[#12855f] text-white"
-                    : "border-[#c9dad2] text-[#5a7368]"
-                )}
-              >
-                {step.done ? <Check className="h-4 w-4" /> : <Clock3 className="h-4 w-4" />}
-              </div>
-              <p className="mt-1 text-[10px] font-semibold text-[#5a7368]">{step.label}</p>
-            </div>
-          ))}
+      <div className="min-h-0 flex-1 overflow-y-auto p-4 space-y-3">
+        <Row label="Destination" value={`${session.preset.title}`} icon={Phone} />
+        <Row label="Calling Number" value={session.preset.number || "Configured line"} icon={Phone} />
+        <Row label="Location" value={location} icon={MapPin} />
+
+        <div className="pt-2">
+          <button
+            onClick={() => {
+              if (session.preset.number) window.location.href = `tel:${session.preset.number}`;
+            }}
+            className="flex min-h-12 w-full items-center justify-center gap-2 rounded bg-[#12855f] text-[15px] font-bold text-white"
+          >
+            <Phone className="h-4 w-4" /> Redial {session.preset.number}
+          </button>
         </div>
       </div>
 
-      {/* Scrollable Information Rows */}
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-        <Row label="Location" value={location} action="Fix" icon={MapPin} />
-
-        {isBystander ? (
-          <>
-            <Row
-              label="Patient"
-              value="Unknown bystander (Aid reported)"
-              action="Details"
-              icon={UserRound}
-            />
-            {session.bystanderData && (
-              <div className="border-b border-[#c9dad2] bg-[#e8f3ee]/50 px-4 py-3 text-[14px] leading-6 text-[#0a3d2e]">
-                <p>
-                  <span className="font-bold">Observations:</span>{" "}
-                  {session.bystanderData.observations || "None reported"}
-                </p>
-                <p>
-                  <span className="font-bold">Category:</span> {session.bystanderData.ageGroup} ·{" "}
-                  <span className="font-bold">Conscious:</span> {session.bystanderData.consciousness} ·{" "}
-                  <span className="font-bold">Breathing:</span> {session.bystanderData.breathing}
-                </p>
-                {session.bystanderData.landmark && (
-                  <p>
-                    <span className="font-bold">Landmark:</span> {session.bystanderData.landmark}
-                  </p>
-                )}
-              </div>
-            )}
-            <Row
-              label="MediCard"
-              value="No MediCard attached · Bystander mode"
-              icon={FileHeart}
-            />
-            <Row
-              label="Tell the operator"
-              value="Read bystander summary to 112"
-              action={scriptOpen ? "Close" : "Open"}
-              onClick={() => setScriptOpen(!scriptOpen)}
-              icon={Phone}
-            />
-            {scriptOpen && (
-              <div className="border-b border-[#c9dad2] bg-[#e8f3ee] p-4 text-[14px] leading-6 text-[#0a3d2e]">
-                <p className="font-bold">I am reporting an emergency for an unknown person at {location}.</p>
-                <p>Observed condition: {session.bystanderData?.observations || "Emergency assistance required"}.</p>
-                <p>Person appears to be {session.bystanderData?.consciousness || "unknown state"}.</p>
-                <p>Nearest landmark: {session.bystanderData?.landmark || "Near GPS coordinates"}.</p>
-                <p className="mt-2 font-semibold">Confirm directly with operator for ambulance triage.</p>
-              </div>
-            )}
-          </>
-        ) : isReach ? (
-          <>
-            <Row
-              label="Patient"
-              value={`${session.profile.name} · Reach Me`}
-              action="Change"
-              onClick={openPicker}
-              icon={UserRound}
-            />
-            <Row
-              label="Trusted Circle"
-              value="Alerts sent to primary & family contacts"
-              action="View"
-              icon={UsersRound}
-            />
-            <div className="border-b border-[#c9dad2] p-4 bg-white">
-              <button
-                onClick={escalateToHyper}
-                className="flex min-h-12 w-full items-center justify-center gap-2 rounded-[4px] bg-[#c8322a] text-[15px] font-bold text-white active:bg-[#a82a23]"
-              >
-                <Siren className="h-5 w-5" /> Escalate to Get ResQ
-              </button>
-            </div>
-          </>
-        ) : isCall ? (
-          <>
-            <Row
-              label="Emergency Destination"
-              value={`${session.preset.title} · ${session.preset.number}`}
-              icon={Phone}
-            />
-            <Row
-              label="Calling Interface"
-              value="Phone dialer launched"
-              action="Redial"
-              onClick={() => {
-                if (session.preset.number) window.location.href = `tel:${session.preset.number}`;
-              }}
-              icon={Phone}
-            />
-          </>
-        ) : (
-          /* Get ResQ Standard Rows */
-          <>
-            <Row
-              label="Patient"
-              value={`${session.profile.name} · Allergy: ${session.profile.allergies[0] || "None"}`}
-              action="Change"
-              onClick={openPicker}
-              icon={UserRound}
-            />
-            <Row
-              label="Family"
-              value={session.familyStatus}
-              action="View"
-              icon={UsersRound}
-            />
-            <Row
-              label="Tell the operator"
-              value="Read this summary to 112"
-              action={scriptOpen ? "Close" : "Open"}
-              onClick={() => setScriptOpen(!scriptOpen)}
-              icon={FileHeart}
-            />
-            {scriptOpen && (
-              <div className="border-b border-[#c9dad2] bg-[#e8f3ee] p-4 text-[14px] leading-6 text-[#0a3d2e]">
-                <p className="font-bold">
-                  My name is {session.profile.name}. I am at {location}.
-                </p>
-                <p>Known condition: {session.profile.conditions[0]}.</p>
-                <p>Allergy: {session.profile.allergies[0]}.</p>
-                <p>Current medicine: {session.profile.medicines[0]}.</p>
-                <p className="mt-2 font-semibold">
-                  Confirm the location and emergency details directly with the operator.
-                </p>
-              </div>
-            )}
-          </>
-        )}
-
-        <Row
-          label="What is happening?"
-          value={session.detail || "Not added"}
-          action="Add"
-          onClick={addDetail}
-          icon={AlertCircle}
-        />
-      </div>
-
-      {/* Pinned Bottom Call 112 Bar */}
-      <div className="shrink-0 border-t border-[#c9dad2] bg-white px-4 pb-[max(14px,env(safe-area-inset-bottom))] pt-2.5">
-        <p className="mb-2 border-l-4 border-[#c8322a] pl-2.5 text-[13px] font-bold text-[#c8322a]">
-          Call 112 for an ambulance.
-        </p>
-        <a
-          href="tel:112"
-          className="flex min-h-[66px] w-full items-center justify-center gap-3 rounded-[6px] bg-[#c8322a] text-[22px] font-extrabold text-white active:bg-[#a82a23]"
+      <div className="shrink-0 border-t border-[#c9dad2] p-4 pb-[max(16px,env(safe-area-inset-bottom))]">
+        <button
+          onClick={cancel}
+          className="flex min-h-12 w-full items-center justify-center rounded border border-[#c9dad2] text-[14px] font-bold text-[#c8322a]"
         >
-          <Phone className="h-6 w-6" /> Call 112
-        </a>
+          End Session
+        </button>
       </div>
     </div>
   );
 }
 
-// Report Bystander Bottom Sheet Component
+// Bystander Active Session Screen (NO duplicated Call 112)
+function BystanderSessionScreen({ session, location, cancel, onOpenAddDetail }) {
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => setElapsed((s) => s + 1), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const mm = String(Math.floor(elapsed / 60)).padStart(2, "0");
+  const ss = String(elapsed % 60).padStart(2, "0");
+
+  return (
+    <div className="flex h-[100dvh] w-full flex-col overflow-hidden bg-white">
+      <header className="flex h-16 shrink-0 items-center justify-between border-b border-[#c9dad2] px-4">
+        <Logo />
+        <button onClick={cancel} className="min-h-12 px-2 text-[14px] font-bold text-[#c8322a]">
+          Cancel
+        </button>
+      </header>
+
+      <section className="shrink-0 border-l-4 border-l-[#12855f] bg-[#e8f3ee] px-4 py-4" aria-live="assertive">
+        <p className="text-[12px] font-bold text-[#5a7368]">Bystander report logged · {mm}:{ss}</p>
+        <h1
+          className="mt-1 text-[22px] font-extrabold tracking-[-0.03em] text-[#0a3d2e]"
+          style={{ fontFamily: "Montserrat, Arial, sans-serif" }}
+        >
+          Bystander SOS Active
+        </h1>
+        <p className="mt-1 text-[15px] leading-5 text-[#5a7368]">
+          Incident reported for an unknown person. Your personal MediCard is NOT attached.
+        </p>
+      </section>
+
+      <div className="min-h-0 flex-1 overflow-y-auto p-4 space-y-3">
+        <Row label="Patient" value="Unknown bystander" icon={UserRound} />
+        <Row label="Location" value={location} icon={MapPin} />
+        {session.bystanderData && (
+          <div className="rounded border border-[#c9dad2] bg-[#f8fbf9] p-3 text-[13px] space-y-1">
+            <p><span className="font-bold">Observations:</span> {session.bystanderData.observations || "None reported"}</p>
+            <p><span className="font-bold">Category:</span> {session.bystanderData.ageGroup} · <span className="font-bold">Conscious:</span> {session.bystanderData.consciousness}</p>
+            <p><span className="font-bold">Landmark:</span> {session.bystanderData.landmark || "GPS location"}</p>
+          </div>
+        )}
+        <Row label="MediCard" value="No MediCard attached · Bystander mode" icon={FileHeart} />
+      </div>
+
+      <div className="shrink-0 border-t border-[#c9dad2] p-4 pb-[max(16px,env(safe-area-inset-bottom))] space-y-2">
+        <button
+          onClick={onOpenAddDetail}
+          className="flex min-h-12 w-full items-center justify-center gap-2 rounded bg-[#12855f] text-[15px] font-bold text-white"
+        >
+          <Plus className="h-4 w-4" /> Add observation update
+        </button>
+        <button
+          onClick={cancel}
+          className="flex min-h-11 w-full items-center justify-center rounded text-[13px] font-bold text-[#c8322a]"
+        >
+          Cancel report
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Person Picker Bottom Sheet
+function PersonPicker({ profiles, selected, choose, close }) {
+  return (
+    <div className="fixed inset-0 z-[90] flex items-end bg-[#0a3d2e]/25" onClick={close}>
+      <section
+        onClick={(e) => e.stopPropagation()}
+        className="max-h-[82dvh] w-full overflow-y-auto rounded-t-[8px] bg-white pb-[max(18px,env(safe-area-inset-bottom))]"
+      >
+        <div className="flex h-16 items-center justify-between border-b border-[#c9dad2] px-4">
+          <h2
+            className="text-[22px] font-extrabold text-[#0a3d2e]"
+            style={{ fontFamily: "Montserrat, Arial, sans-serif" }}
+          >
+            Who needs help?
+          </h2>
+          <button onClick={close} className="grid h-12 w-12 place-items-center text-[#12855f]">
+            <X className="h-6 w-6" />
+          </button>
+        </div>
+
+        {profiles.map((person) => (
+          <button
+            key={person.id}
+            onClick={() => choose(person)}
+            className="flex min-h-[76px] w-full items-center gap-3 border-b border-[#c9dad2] px-4 text-left active:bg-[#e8f3ee]"
+          >
+            <div className="grid h-11 w-11 place-items-center bg-[#e8f3ee] font-extrabold text-[#12855f] rounded-[4px]">
+              {person.initials}
+            </div>
+            <div className="flex-1">
+              <p className="text-[17px] font-bold text-[#0a3d2e]">{person.name}</p>
+              <p className="mt-0.5 text-[13px] text-[#5a7368]">
+                {person.relation} · {person.age} years
+              </p>
+            </div>
+            {selected.id === person.id && <Check className="h-5 w-5 text-[#12855f]" />}
+          </button>
+        ))}
+
+        <button
+          onClick={() =>
+            choose({
+              ...profiles[0],
+              id: "someone",
+              name: "Someone else",
+              relation: "Unknown person",
+              age: "Adult",
+              initials: "?",
+              conditions: ["Unknown"],
+              allergies: ["Unknown"],
+              medicines: ["Unknown"],
+            })
+          }
+          className="flex min-h-[64px] w-full items-center gap-3 border-b border-[#c9dad2] px-4 text-left text-[16px] font-bold text-[#12855f] active:bg-[#e8f3ee]"
+        >
+          Someone else
+        </button>
+
+        <button
+          onClick={() =>
+            choose({
+              ...profiles[0],
+              id: "unknown",
+              name: "Unknown person",
+              relation: "No profile",
+              age: "Unknown",
+              initials: "?",
+              conditions: ["Unknown"],
+              allergies: ["Unknown"],
+              medicines: ["Unknown"],
+            })
+          }
+          className="flex min-h-[64px] w-full items-center gap-3 px-4 text-left text-[16px] font-bold text-[#12855f] active:bg-[#e8f3ee]"
+        >
+          I don't know this person
+        </button>
+      </section>
+    </div>
+  );
+}
+
+// Bystander Report Initial Sheet
 function BystanderBottomSheet({ location, onClose, onStartBystanderSos }) {
   const [ageGroup, setAgeGroup] = useState("Unknown");
   const [consciousness, setConsciousness] = useState("Unknown");
@@ -908,15 +1605,11 @@ function BystanderBottomSheet({ location, onClose, onStartBystanderSos }) {
   const breathingOptions = ["Visible", "Not visible", "Unknown"];
 
   return (
-    <div
-      className="fixed inset-0 z-[90] flex items-end bg-[#0a3d2e]/25"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-[90] flex items-end bg-[#0a3d2e]/25" onClick={onClose}>
       <section
         onClick={(e) => e.stopPropagation()}
         className="max-h-[88dvh] w-full overflow-y-auto rounded-t-[8px] bg-white pb-[max(20px,env(safe-area-inset-bottom))]"
       >
-        {/* Header */}
         <div className="flex h-16 items-center justify-between border-b border-[#c9dad2] px-4">
           <div>
             <h2
@@ -927,30 +1620,17 @@ function BystanderBottomSheet({ location, onClose, onStartBystanderSos }) {
             </h2>
             <p className="text-[12px] text-[#5a7368]">Assisting someone else in distress</p>
           </div>
-          <button
-            onClick={onClose}
-            className="grid h-12 w-12 place-items-center text-[#12855f] active:bg-[#e8f3ee] rounded"
-          >
+          <button onClick={onClose} className="grid h-12 w-12 place-items-center text-[#12855f] rounded">
             <X className="h-6 w-6" />
           </button>
         </div>
 
         <div className="p-4 space-y-4">
-          {/* Quick 112 Call & Location */}
-          <div className="flex items-center justify-between rounded-[4px] border border-[#c9dad2] bg-[#e8f3ee] p-3">
-            <div className="min-w-0 flex-1">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-[#12855f]">Location</p>
-              <p className="truncate text-[14px] font-bold text-[#0a3d2e]">{location}</p>
-            </div>
-            <a
-              href="tel:112"
-              className="ml-3 flex min-h-10 items-center gap-1.5 rounded-[4px] bg-[#c8322a] px-3.5 text-[14px] font-extrabold text-white"
-            >
-              <Phone className="h-4 w-4" /> Call 112
-            </a>
+          <div className="rounded-[4px] border border-[#c9dad2] bg-[#e8f3ee] p-3">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-[#12855f]">Location</p>
+            <p className="truncate text-[14px] font-bold text-[#0a3d2e]">{location}</p>
           </div>
 
-          {/* Observations Form */}
           <div>
             <label className="text-[12px] font-extrabold uppercase tracking-wider text-[#5a7368]">
               Estimated Age Category (Optional)
@@ -1057,7 +1737,7 @@ function BystanderBottomSheet({ location, onClose, onStartBystanderSos }) {
                   landmark,
                 });
               }}
-              className="flex min-h-14 w-full items-center justify-center gap-2 rounded-[4px] bg-[#c8322a] text-[16px] font-bold text-white transition active:bg-[#a82a23]"
+              className="flex min-h-14 w-full items-center justify-center gap-2 rounded-[4px] bg-[#12855f] text-[16px] font-bold text-white transition active:bg-[#0a3d2e]"
             >
               <Siren className="h-5 w-5" /> Start Bystander SOS
             </button>
@@ -1071,88 +1751,7 @@ function BystanderBottomSheet({ location, onClose, onStartBystanderSos }) {
   );
 }
 
-// Person Picker Bottom Sheet
-function PersonPicker({ profiles, selected, choose, close }) {
-  return (
-    <div className="fixed inset-0 z-[90] flex items-end bg-[#0a3d2e]/25" onClick={close}>
-      <section
-        onClick={(e) => e.stopPropagation()}
-        className="max-h-[82dvh] w-full overflow-y-auto rounded-t-[8px] bg-white pb-[max(18px,env(safe-area-inset-bottom))]"
-      >
-        <div className="flex h-16 items-center justify-between border-b border-[#c9dad2] px-4">
-          <h2
-            className="text-[22px] font-extrabold text-[#0a3d2e]"
-            style={{ fontFamily: "Montserrat, Arial, sans-serif" }}
-          >
-            Who needs help?
-          </h2>
-          <button onClick={close} className="grid h-12 w-12 place-items-center text-[#12855f]">
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-
-        {profiles.map((person) => (
-          <button
-            key={person.id}
-            onClick={() => choose(person)}
-            className="flex min-h-[76px] w-full items-center gap-3 border-b border-[#c9dad2] px-4 text-left active:bg-[#e8f3ee]"
-          >
-            <div className="grid h-11 w-11 place-items-center bg-[#e8f3ee] font-extrabold text-[#12855f] rounded-[4px]">
-              {person.initials}
-            </div>
-            <div className="flex-1">
-              <p className="text-[17px] font-bold text-[#0a3d2e]">{person.name}</p>
-              <p className="mt-0.5 text-[13px] text-[#5a7368]">
-                {person.relation} · {person.age} years
-              </p>
-            </div>
-            {selected.id === person.id && <Check className="h-5 w-5 text-[#12855f]" />}
-          </button>
-        ))}
-
-        <button
-          onClick={() =>
-            choose({
-              ...profiles[0],
-              id: "someone",
-              name: "Someone else",
-              relation: "Unknown person",
-              age: "Adult",
-              initials: "?",
-              conditions: ["Unknown"],
-              allergies: ["Unknown"],
-              medicines: ["Unknown"],
-            })
-          }
-          className="flex min-h-[64px] w-full items-center gap-3 border-b border-[#c9dad2] px-4 text-left text-[16px] font-bold text-[#12855f] active:bg-[#e8f3ee]"
-        >
-          Someone else
-        </button>
-
-        <button
-          onClick={() =>
-            choose({
-              ...profiles[0],
-              id: "unknown",
-              name: "Unknown person",
-              relation: "No profile",
-              age: "Unknown",
-              initials: "?",
-              conditions: ["Unknown"],
-              allergies: ["Unknown"],
-              medicines: ["Unknown"],
-            })
-          }
-          className="flex min-h-[64px] w-full items-center gap-3 px-4 text-left text-[16px] font-bold text-[#12855f] active:bg-[#e8f3ee]"
-        >
-          I don't know this person
-        </button>
-      </section>
-    </div>
-  );
-}
-
-// Navigation Drawer Component
+// Navigation Drawer
 function Drawer({ open, close, page, setPage, profile, active }) {
   const sections = [
     {
@@ -1186,7 +1785,6 @@ function Drawer({ open, close, page, setPage, profile, active }) {
 
   return (
     <>
-      {/* Translucent Deep-Green Overlay (#0A3D2E / 25%) */}
       <div
         onClick={close}
         className={cx(
@@ -1204,11 +1802,7 @@ function Drawer({ open, close, page, setPage, profile, active }) {
       >
         <div className="flex h-16 items-center justify-between border-b border-[#c9dad2] px-4">
           <Logo />
-          <button
-            onClick={close}
-            className="grid h-12 w-12 place-items-center text-[#12855f] active:bg-[#e8f3ee] rounded"
-            aria-label="Close menu"
-          >
+          <button onClick={close} className="grid h-12 w-12 place-items-center text-[#12855f] rounded" aria-label="Close menu">
             <X className="h-6 w-6" />
           </button>
         </div>
@@ -1260,7 +1854,7 @@ function Drawer({ open, close, page, setPage, profile, active }) {
   );
 }
 
-// Plain Page Scaffold
+// Plain Page Layout
 function PlainPage({ title, subtitle, children, back }) {
   return (
     <div className="w-full px-4 pb-12 pt-4">
@@ -1285,7 +1879,7 @@ function PlainPage({ title, subtitle, children, back }) {
   );
 }
 
-// MediCard Page
+// MediCard Screen
 function MediCard({ profile, onUpdateProfile, onBack }) {
   const [editingKey, setEditingKey] = useState(null);
   const [fieldVal, setFieldVal] = useState("");
@@ -1358,15 +1952,13 @@ function MediCard({ profile, onUpdateProfile, onBack }) {
               className="mt-3 min-h-12 w-full rounded border border-[#c9dad2] px-3 text-[15px] text-[#0a3d2e] focus:border-[#12855f] focus:outline-none"
             />
             <div className="mt-4 flex gap-2">
-              <TapButton
-                tone="plain"
+              <button
                 onClick={() => setEditingKey(null)}
-                className="flex-1"
+                className="flex-1 min-h-11 rounded border border-[#c9dad2] text-[14px] font-bold text-[#0a3d2e]"
               >
                 Cancel
-              </TapButton>
-              <TapButton
-                tone="green"
+              </button>
+              <button
                 onClick={() => {
                   let updated = { ...profile, updated: "Today" };
                   if (["conditions", "allergies", "medicines"].includes(editingKey.key)) {
@@ -1377,10 +1969,10 @@ function MediCard({ profile, onUpdateProfile, onBack }) {
                   onUpdateProfile(updated);
                   setEditingKey(null);
                 }}
-                className="flex-1"
+                className="flex-1 min-h-11 rounded bg-[#12855f] text-[14px] font-bold text-white"
               >
                 Save
-              </TapButton>
+              </button>
             </div>
           </div>
         </div>
@@ -1389,14 +1981,12 @@ function MediCard({ profile, onUpdateProfile, onBack }) {
   );
 }
 
-// Family Page
+// Family Profiles Screen
 function FamilyPage({ profiles, onAddFamily, onBack }) {
   const [showAdd, setShowAdd] = useState(false);
   const [name, setName] = useState("");
   const [relation, setRelation] = useState("");
   const [age, setAge] = useState("");
-  const [blood, setBlood] = useState("O+");
-  const [allergy, setAllergy] = useState("");
 
   return (
     <PlainPage title="Family profiles" subtitle="Create a managed profile or link an independent ResQ account." back={onBack}>
@@ -1413,9 +2003,12 @@ function FamilyPage({ profiles, onAddFamily, onBack }) {
       </div>
 
       <div className="mt-5">
-        <TapButton onClick={() => setShowAdd(true)}>
+        <button
+          onClick={() => setShowAdd(true)}
+          className="flex min-h-14 w-full items-center justify-center gap-2 rounded bg-[#12855f] text-[15px] font-bold text-white"
+        >
           <Plus className="h-5 w-5" /> Add or link family member
-        </TapButton>
+        </button>
       </div>
 
       {showAdd && (
@@ -1443,26 +2036,14 @@ function FamilyPage({ profiles, onAddFamily, onBack }) {
               onChange={(e) => setAge(e.target.value)}
               className="min-h-11 w-full rounded border border-[#c9dad2] px-3 text-[14px]"
             />
-            <input
-              type="text"
-              placeholder="Blood Group (e.g. B+, O+)"
-              value={blood}
-              onChange={(e) => setBlood(e.target.value)}
-              className="min-h-11 w-full rounded border border-[#c9dad2] px-3 text-[14px]"
-            />
-            <input
-              type="text"
-              placeholder="Known Allergies (if any)"
-              value={allergy}
-              onChange={(e) => setAllergy(e.target.value)}
-              className="min-h-11 w-full rounded border border-[#c9dad2] px-3 text-[14px]"
-            />
             <div className="flex gap-2 pt-2">
-              <TapButton tone="plain" onClick={() => setShowAdd(false)} className="flex-1">
+              <button
+                onClick={() => setShowAdd(false)}
+                className="flex-1 min-h-11 rounded border border-[#c9dad2] text-[14px] font-bold text-[#0a3d2e]"
+              >
                 Cancel
-              </TapButton>
-              <TapButton
-                tone="green"
+              </button>
+              <button
                 onClick={() => {
                   if (name.trim()) {
                     const initials = name
@@ -1477,8 +2058,8 @@ function FamilyPage({ profiles, onAddFamily, onBack }) {
                       relation: relation || "Family",
                       age: age || "Adult",
                       initials: initials || "FM",
-                      bloodGroup: blood || "Unknown",
-                      allergies: allergy ? [allergy] : ["No allergy added"],
+                      bloodGroup: "Unknown",
+                      allergies: ["No allergy added"],
                       conditions: ["No condition added"],
                       medicines: ["No medicine added"],
                       updated: "Today",
@@ -1486,10 +2067,10 @@ function FamilyPage({ profiles, onAddFamily, onBack }) {
                     setShowAdd(false);
                   }
                 }}
-                className="flex-1"
+                className="flex-1 min-h-11 rounded bg-[#12855f] text-[14px] font-bold text-white"
               >
                 Add Member
-              </TapButton>
+              </button>
             </div>
           </div>
         </div>
@@ -1511,7 +2092,7 @@ function SimpleListPage({ title, subtitle, rows, onBack }) {
   );
 }
 
-// Main Application Component
+// Main App Container
 export default function App() {
   const [page, setPage] = useState("home");
   const [drawer, setDrawer] = useState(false);
@@ -1530,7 +2111,11 @@ export default function App() {
   const [session, setSession] = useState(null);
   const [picker, setPicker] = useState(false);
   const [bystanderSheet, setBystanderSheet] = useState(false);
-  const [services, setServices] = useState(initialEmergencyServices);
+  const [services] = useState(initialEmergencyServices);
+  const [textComposerOpen, setTextComposerOpen] = useState(false);
+  const [videoStampOpen, setVideoStampOpen] = useState(false);
+  const [isSimulatedAccepted, setIsSimulatedAccepted] = useState(false);
+
   const [history, setHistory] = useState(() => {
     try {
       const saved = localStorage.getItem("resq_history");
@@ -1596,35 +2181,24 @@ export default function App() {
         preset,
         bystanderData: preset.bystanderData,
         statusTitle: "Bystander SOS active",
-        statusDetail: "Location & bystander report logged. Personal MediCard is NOT attached. Now call 112.",
+        statusDetail: "Location & bystander report logged. Personal MediCard is NOT attached.",
         familyStatus: "Bystander report active",
         detail: preset.bystanderData?.observations || "",
-        steps: [
-          { label: "Started", done: true },
-          { label: "Location", done: true },
-          { label: "Observations", done: true },
-          { label: "Dialer ready", done: true },
-        ],
+        updates: [],
       });
       return;
     }
 
     if (preset.mode === "reach") {
       setSession({
-        id: sessionId,
+        id: `RM-${Math.floor(1000 + Math.random() * 9000)}`,
         profile,
         preset,
-        statusTitle: "Reach Me is active",
-        statusDetail: "Sharing your live location with selected trusted circle.",
-        familyStatus: "Connected circle alerted",
-        detail: "",
-        steps: [
-          { label: "Started", done: true },
-          { label: "Location", done: true },
-          { label: "Contacts", done: true },
-          { label: "Callback", done: true },
-        ],
+        statusTitle: "Connecting you with emergency services",
+        statusDetail: "Your location and emergency details are being prepared.",
+        updates: [],
       });
+      setIsSimulatedAccepted(false);
       return;
     }
 
@@ -1634,15 +2208,8 @@ export default function App() {
         profile,
         preset,
         statusTitle: `Calling ${preset.title}`,
-        statusDetail: `Opening the phone dialer for ${preset.number}.`,
-        familyStatus: preset.alerts ? "Alerts initializing" : "Not configured",
+        statusDetail: `Opening phone calling flow for ${preset.number}.`,
         detail: "",
-        steps: [
-          { label: "Started", done: true },
-          { label: "Location", done: true },
-          { label: "Dialer", done: true },
-          { label: "Emergency", done: true },
-        ],
       });
       if (preset.number) {
         window.location.href = `tel:${preset.number}`;
@@ -1656,15 +2223,9 @@ export default function App() {
       profile,
       preset,
       statusTitle: "Get ResQ started",
-      statusDetail: "Your location and MediCard are being prepared. Now call 112.",
-      familyStatus: "Connected family Get ResQ alerts initialized",
+      statusDetail: "Your location, MediCard and connected-family alerts are being prepared.",
       detail: "",
-      steps: [
-        { label: "Started", done: true },
-        { label: "Location", done: true },
-        { label: "MediCard", done: true },
-        { label: "Family", done: true },
-      ],
+      updates: [],
     });
   }
 
@@ -1695,7 +2256,7 @@ export default function App() {
       id: "bystander",
       title: "Bystander SOS",
       subtitle: "Emergency aid for another person",
-      number: "112",
+      number: null,
       mode: "bystander",
       bystanderData,
       alerts: false,
@@ -1708,7 +2269,6 @@ export default function App() {
       setSession({
         ...session,
         profile: person,
-        statusDetail: `Patient updated to ${person.name}. Now call 112.`,
       });
     }
     setPicker(false);
@@ -1730,17 +2290,26 @@ export default function App() {
       ]);
     }
     setSession(null);
+    setIsSimulatedAccepted(false);
     setPage("home");
+  }
+
+  function addSessionUpdate(updateObj) {
+    if (!session) return;
+    setSession((prev) => ({
+      ...prev,
+      updates: [updateObj, ...(prev.updates || [])],
+    }));
   }
 
   // Left-edge right-swipe to open navigation drawer
   function onTouchStart(e) {
-    if (session || countdownPreset || bystanderSheet || picker) return;
+    if (session || countdownPreset || bystanderSheet || picker || textComposerOpen || videoStampOpen) return;
     touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
   }
 
   function onTouchEnd(e) {
-    if (!touchStart.current || session || countdownPreset || bystanderSheet || picker) return;
+    if (!touchStart.current || session || countdownPreset || bystanderSheet || picker || textComposerOpen || videoStampOpen) return;
     const dx = e.changedTouches[0].clientX - touchStart.current.x;
     const dy = e.changedTouches[0].clientY - touchStart.current.y;
     const startedLeft = touchStart.current.x < 72;
@@ -1871,34 +2440,128 @@ export default function App() {
     }
   }, [page, profile, profiles, location, session, services, presetIndex, history]);
 
+  // Active Session Routing (No duplicated Call 112 across screens!)
   if (session) {
+    if (session.preset.mode === "reach") {
+      return (
+        <div className="app-shell min-h-[100dvh] w-full overflow-x-hidden bg-white text-[#0a3d2e]">
+          <ReachMeTrackingScreen
+            session={session}
+            location={location}
+            cancel={cancelSOS}
+            onOpenTextComposer={() => setTextComposerOpen(true)}
+            onOpenVideoStamp={() => setVideoStampOpen(true)}
+            onOpenLocation={() => setPage("location")}
+            isSimulatedAccepted={isSimulatedAccepted}
+            onToggleSimulation={() => setIsSimulatedAccepted(!isSimulatedAccepted)}
+          />
+
+          {textComposerOpen && (
+            <TextUpdateComposer
+              onClose={() => setTextComposerOpen(false)}
+              onSave={(text) => {
+                addSessionUpdate({
+                  id: uid(),
+                  type: "text",
+                  text,
+                  source: "You reported",
+                  timestamp: timeNow(),
+                });
+              }}
+            />
+          )}
+
+          {videoStampOpen && (
+            <VideoStampModal
+              sessionId={session.id}
+              location={location}
+              onClose={() => setVideoStampOpen(false)}
+              onAttach={(meta) => {
+                addSessionUpdate({
+                  id: uid(),
+                  type: "video",
+                  source: "You reported",
+                  duration: meta.duration,
+                  timestamp: meta.timestamp,
+                  locationStatus: meta.locationStatus,
+                  storageStatus: meta.storageStatus,
+                });
+              }}
+            />
+          )}
+        </div>
+      );
+    }
+
+    if (session.preset.mode === "hyper") {
+      return (
+        <div className="app-shell min-h-[100dvh] w-full overflow-x-hidden bg-white text-[#0a3d2e]">
+          <GetResqResultScreen
+            session={session}
+            location={location}
+            cancel={cancelSOS}
+            openPicker={() => setPicker(true)}
+            onOpenAddDetail={() => setTextComposerOpen(true)}
+            onOpenLocation={() => setPage("location")}
+          />
+
+          {picker && (
+            <PersonPicker
+              profiles={profiles}
+              selected={profile}
+              choose={choosePerson}
+              close={() => setPicker(false)}
+            />
+          )}
+
+          {textComposerOpen && (
+            <TextUpdateComposer
+              onClose={() => setTextComposerOpen(false)}
+              onSave={(text) => {
+                setSession((prev) => ({ ...prev, detail: text }));
+              }}
+            />
+          )}
+        </div>
+      );
+    }
+
+    if (session.preset.mode === "bystander") {
+      return (
+        <div className="app-shell min-h-[100dvh] w-full overflow-x-hidden bg-white text-[#0a3d2e]">
+          <BystanderSessionScreen
+            session={session}
+            location={location}
+            cancel={cancelSOS}
+            onOpenAddDetail={() => setTextComposerOpen(true)}
+          />
+
+          {textComposerOpen && (
+            <TextUpdateComposer
+              onClose={() => setTextComposerOpen(false)}
+              onSave={(text) => {
+                setSession((prev) => ({
+                  ...prev,
+                  bystanderData: {
+                    ...(prev.bystanderData || {}),
+                    observations: text,
+                  },
+                }));
+              }}
+            />
+          )}
+        </div>
+      );
+    }
+
+    // Call Mode (Police, Fire, Ambulance Helpline, Family Emergency)
     return (
       <div className="app-shell min-h-[100dvh] w-full overflow-x-hidden bg-white text-[#0a3d2e]">
-        <ActiveSOS
+        <ServiceCallSessionScreen
           session={session}
           location={location}
           cancel={cancelSOS}
-          openPicker={() => setPicker(true)}
-          addDetail={() =>
-            setSession({ ...session, detail: prompt("Describe emergency symptoms:") || session.detail })
-          }
-          escalateToHyper={() => {
-            setSession({
-              ...session,
-              preset: sosPresets[0],
-              statusTitle: "Escalated to Get ResQ",
-              statusDetail: "Family alerts and emergency MediCard initialized. Call 112.",
-            });
-          }}
         />
-        {picker && (
-          <PersonPicker
-            profiles={profiles}
-            selected={profile}
-            choose={choosePerson}
-            close={() => setPicker(false)}
-          />
-        )}
       </div>
     );
   }
@@ -1909,17 +2572,14 @@ export default function App() {
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
-      {/* 1. Header (Sticky Top) */}
       <AppHeader
         openMenu={() => setDrawer(true)}
         location={location}
         onLocationClick={() => setPage("location")}
       />
 
-      {/* 2. Main Page Content (Normal vertical scroll) */}
       <main className="w-full">{body}</main>
 
-      {/* 3. Navigation Drawer */}
       <Drawer
         open={drawer}
         close={() => setDrawer(false)}
@@ -1929,7 +2589,6 @@ export default function App() {
         active={Boolean(session)}
       />
 
-      {/* 4. Five-Second Countdown Overlay */}
       {countdownPreset && (
         <Countdown
           preset={countdownPreset}
@@ -1938,7 +2597,6 @@ export default function App() {
         />
       )}
 
-      {/* 5. Patient Selection Bottom Sheet */}
       {page === "personPicker" && (
         <PersonPicker
           profiles={profiles}
@@ -1948,7 +2606,6 @@ export default function App() {
         />
       )}
 
-      {/* 6. Report Bystander Bottom Sheet */}
       {bystanderSheet && (
         <BystanderBottomSheet
           location={location}

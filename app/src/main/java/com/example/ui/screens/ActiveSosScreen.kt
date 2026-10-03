@@ -351,7 +351,7 @@ fun ActiveSosScreen(
       )
     }
 
-    // 5. Pinned Bottom Bar: Caution text & Big Call 112 Button
+    // 5. Bottom Action Controls (NO Call 112 CTA)
     Column(
       modifier = Modifier
         .fillMaxWidth()
@@ -359,54 +359,70 @@ fun ActiveSosScreen(
         .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
       Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(bottom = 10.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxWidth()
       ) {
-        Box(
-          modifier = Modifier
-            .width(4.dp)
-            .height(18.dp)
-            .background(ResQRed)
-        )
-        Spacer(Modifier.width(8.dp))
-        Text(
-          text = "Call 112 for an ambulance.",
-          fontSize = 14.sp,
-          fontWeight = FontWeight.Bold,
-          color = ResQRed
-        )
+        OutlinedButton(
+          onClick = onFixLocation,
+          shape = RoundedCornerShape(4.dp),
+          modifier = Modifier.weight(1f).heightIn(min = 48.dp)
+        ) {
+          Icon(
+            imageVector = Icons.Default.Place,
+            contentDescription = null,
+            tint = ResQGreen,
+            modifier = Modifier.size(16.dp)
+          )
+          Spacer(Modifier.width(4.dp))
+          Text("Update location", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = ResQGreenDark)
+        }
+
+        OutlinedButton(
+          onClick = onChangePatient,
+          shape = RoundedCornerShape(4.dp),
+          modifier = Modifier.weight(1f).heightIn(min = 48.dp)
+        ) {
+          Icon(
+            imageVector = Icons.Default.Person,
+            contentDescription = null,
+            tint = ResQGreen,
+            modifier = Modifier.size(16.dp)
+          )
+          Spacer(Modifier.width(4.dp))
+          Text("Change patient", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = ResQGreenDark)
+        }
       }
+
+      Spacer(Modifier.height(8.dp))
 
       Button(
         onClick = {
-          val callIntent = Intent(Intent.ACTION_DIAL).apply {
-            data = Uri.parse("tel:112")
-          }
-          context.startActivity(callIntent)
+          detailText = session.detail
+          showDetailDialog = true
         },
-        shape = RoundedCornerShape(6.dp),
+        shape = RoundedCornerShape(4.dp),
         colors = ButtonDefaults.buttonColors(
-          containerColor = ResQRed,
+          containerColor = ResQGreen,
           contentColor = ResQWhite
         ),
-        modifier = Modifier
-          .fillMaxWidth()
-          .heightIn(min = 68.dp)
-          .testTag("sos_bottom_call_112_button")
+        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
       ) {
-        Icon(
-          imageVector = Icons.Default.Phone,
-          contentDescription = "Call phone icon",
-          tint = ResQWhite,
-          modifier = Modifier.size(24.dp)
-        )
-        Spacer(Modifier.width(10.dp))
-        Text(
-          text = "Call 112",
-          fontSize = 22.sp,
-          fontWeight = FontWeight.ExtraBold,
-          color = ResQWhite
-        )
+        Text("Add emergency details", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+      }
+
+      Spacer(Modifier.height(8.dp))
+
+      Button(
+        onClick = onCancelSos,
+        shape = RoundedCornerShape(4.dp),
+        colors = ButtonDefaults.buttonColors(
+          containerColor = ResQWhite,
+          contentColor = ResQRed
+        ),
+        border = androidx.compose.foundation.BorderStroke(1.dp, ResQRed),
+        modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp)
+      ) {
+        Text("Cancel Get ResQ", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = ResQRed)
       }
     }
   }

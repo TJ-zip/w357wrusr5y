@@ -453,7 +453,7 @@ fun SwipeableSosPresetCard(
     Box(
       modifier = Modifier
         .fillMaxWidth()
-        .heightIn(min = 210.dp)
+        .heightIn(min = 250.dp)
         .clip(RoundedCornerShape(6.dp))
         .background(bgColor)
         .then(
@@ -481,101 +481,114 @@ fun SwipeableSosPresetCard(
           .offset { IntOffset(animatedOffset.roundToInt(), 0) },
         verticalArrangement = Arrangement.SpaceBetween
       ) {
-        Row(
-          modifier = Modifier.fillMaxWidth(),
-          horizontalArrangement = Arrangement.SpaceBetween,
-          verticalAlignment = Alignment.CenterVertically
-        ) {
-          Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-              imageVector = if (isHyper) Icons.Default.Warning else if (isReach) Icons.Default.Favorite else Icons.Default.Call,
-              contentDescription = null,
-              tint = textColor,
-              modifier = Modifier.size(28.dp)
-            )
-            Spacer(Modifier.width(8.dp))
+        Column(modifier = Modifier.fillMaxWidth()) {
+          // 1. Icon
+          Icon(
+            imageVector = if (isHyper) Icons.Default.Warning else if (isReach) Icons.Default.Favorite else Icons.Default.Call,
+            contentDescription = null,
+            tint = textColor,
+            modifier = Modifier.size(32.dp)
+          )
+
+          Spacer(Modifier.height(8.dp))
+
+          // 2. Preset Kicker
+          Text(
+            text = when (currentPreset.id) {
+              "hyper" -> "MEDICAL EMERGENCY"
+              "reach" -> "EMERGENCY ASSISTANCE"
+              "ambulance" -> "AMBULANCE SERVICE"
+              else -> "FAMILY SUPPORT"
+            },
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = 1.2.sp,
+            color = if (isHyper || isReach) ResQWhite.copy(alpha = 0.8f) else if (isAmbulance) ResQRed else ResQGreen
+          )
+
+          Spacer(Modifier.height(4.dp))
+
+          // 3. Preset Title
+          Text(
+            text = currentPreset.title,
+            fontSize = 26.sp,
+            fontWeight = FontWeight.ExtraBold,
+            fontFamily = FontFamily.SansSerif,
+            lineHeight = 28.sp,
+            color = textColor
+          )
+
+          Spacer(Modifier.height(8.dp))
+
+          // 4. One-line descriptor / Short explanation
+          Text(
+            text = when (currentPreset.id) {
+              "hyper" -> "Start location, MediCard and connected-family alerts."
+              "reach" -> "Request emergency services to reach your location and alert your circle."
+              "ambulance" -> "Prepare a call to the configured ambulance helpline."
+              else -> "Alert family profiles and call your primary emergency contact."
+            },
+            fontSize = 15.sp,
+            lineHeight = 20.sp,
+            maxLines = 2,
+            color = if (isHyper || isReach) ResQWhite.copy(alpha = 0.95f) else ResQGreenMuted
+          )
+        }
+
+        Column(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
+          // 5. Primary Action Button
+          Button(
+            onClick = { onActivate(currentPreset) },
+            shape = RoundedCornerShape(4.dp),
+            colors = ButtonDefaults.buttonColors(
+              containerColor = if (isHyper || isReach) ResQWhite else if (isAmbulance) ResQRed else ResQGreen,
+              contentColor = if (isHyper) ResQRed else if (isReach) ResQGreen else ResQWhite
+            ),
+            modifier = Modifier
+              .fillMaxWidth()
+              .heightIn(min = 56.dp)
+          ) {
             Text(
-              text = currentPreset.title.uppercase(),
-              fontSize = 22.sp,
-              fontWeight = FontWeight.ExtraBold,
-              fontFamily = FontFamily.SansSerif,
-              color = textColor
+              text = when (currentPreset.id) {
+                "hyper" -> "GET RESQ"
+                "reach" -> "START REACH ME"
+                "ambulance" -> "CALL AMBULANCE HELPLINE"
+                else -> "START FAMILY EMERGENCY"
+              },
+              fontSize = 15.sp,
+              fontWeight = FontWeight.ExtraBold
             )
           }
 
-          Text(
-            text = currentPreset.subtitle,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Bold,
-            color = if (isHyper || isReach) ResQWhite.copy(alpha = 0.85f) else ResQGreenMuted
-          )
-        }
+          Spacer(Modifier.height(8.dp))
 
-        Spacer(Modifier.height(8.dp))
-
-        Text(
-          text = when (currentPreset.id) {
-            "hyper" -> "Start location, MediCard and family alerts."
-            "reach" -> "Share live position with your trusted contacts."
-            "ambulance" -> "Prepares phone dialer for ambulance service."
-            else -> "Notify family profiles and open primary contact."
-          },
-          fontSize = 14.sp,
-          color = if (isHyper || isReach) ResQWhite.copy(alpha = 0.95f) else ResQGreenMuted
-        )
-
-        Spacer(Modifier.height(16.dp))
-
-        Button(
-          onClick = { onActivate(currentPreset) },
-          shape = RoundedCornerShape(4.dp),
-          colors = ButtonDefaults.buttonColors(
-            containerColor = if (isHyper || isReach) ResQWhite else if (isAmbulance) ResQRed else ResQGreen,
-            contentColor = if (isHyper) ResQRed else if (isReach) ResQGreen else ResQWhite
-          ),
-          modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 48.dp)
-        ) {
-          Text(
-            text = when (currentPreset.id) {
-              "hyper" -> "GET RESQ"
-              "reach" -> "START REACH ME"
-              "ambulance" -> "CALL AMBULANCE HELPLINE"
-              else -> "START FAMILY EMERGENCY"
-            },
-            fontSize = 15.sp,
-            fontWeight = FontWeight.ExtraBold
-          )
-        }
-
-        Spacer(Modifier.height(6.dp))
-
-        Row(
-          horizontalArrangement = Arrangement.Center,
-          verticalAlignment = Alignment.CenterVertically,
-          modifier = Modifier.fillMaxWidth()
-        ) {
-          Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = null,
-            tint = if (isHyper || isReach) ResQWhite.copy(alpha = 0.8f) else ResQGreenMuted,
-            modifier = Modifier.size(12.dp)
-          )
-          Spacer(Modifier.width(4.dp))
-          Text(
-            text = "SWIPE TO CHOOSE ANOTHER SOS",
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Bold,
-            color = if (isHyper || isReach) ResQWhite.copy(alpha = 0.8f) else ResQGreenMuted
-          )
-          Spacer(Modifier.width(4.dp))
-          Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-            contentDescription = null,
-            tint = if (isHyper || isReach) ResQWhite.copy(alpha = 0.8f) else ResQGreenMuted,
-            modifier = Modifier.size(12.dp)
-          )
+          // 6. Swipe Instruction
+          Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+          ) {
+            Icon(
+              imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+              contentDescription = null,
+              tint = if (isHyper || isReach) ResQWhite.copy(alpha = 0.8f) else ResQGreenMuted,
+              modifier = Modifier.size(12.dp)
+            )
+            Spacer(Modifier.width(4.dp))
+            Text(
+              text = "SWIPE TO CHOOSE ANOTHER SOS",
+              fontSize = 10.sp,
+              fontWeight = FontWeight.Bold,
+              color = if (isHyper || isReach) ResQWhite.copy(alpha = 0.8f) else ResQGreenMuted
+            )
+            Spacer(Modifier.width(4.dp))
+            Icon(
+              imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+              contentDescription = null,
+              tint = if (isHyper || isReach) ResQWhite.copy(alpha = 0.8f) else ResQGreenMuted,
+              modifier = Modifier.size(12.dp)
+            )
+          }
         }
       }
     }
