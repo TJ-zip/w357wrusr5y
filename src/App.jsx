@@ -1848,6 +1848,20 @@ function Drawer({ open, close, page, setPage, profile, active }) {
               ))}
             </div>
           ))}
+
+          {/* Direct APK Download Button */}
+          <div className="p-4 border-t border-[#c9dad2] mt-4">
+            <a
+              href="/resq-debug.apk"
+              download="resq-debug.apk"
+              className="flex min-h-12 w-full items-center justify-center gap-2 rounded bg-[#12855f] text-[14px] font-bold text-white shadow-sm active:bg-[#0a3d2e]"
+            >
+              <Smartphone className="h-4 w-4" /> Download Android APK (22 MB)
+            </a>
+            <p className="mt-1.5 text-center text-[11px] text-[#5a7368]">
+              Install directly on your Android phone
+            </p>
+          </div>
         </div>
       </aside>
     </>
@@ -2402,6 +2416,7 @@ export default function App() {
             title="Permissions & privacy"
             subtitle="Control what ResQ can access and share."
             rows={[
+              ["Download Android APK", "resq-debug.apk (22 MB)", "Download", () => window.open("/resq-debug.apk", "_blank")],
               ["Location tracking", "While using ResQ", "Active"],
               ["Family emergency alerts", "On for Get ResQ", "Change"],
               ["Medical sharing", "Concise emergency summary only", "Change"],
